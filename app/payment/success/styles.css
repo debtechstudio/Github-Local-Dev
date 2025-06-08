@@ -1,0 +1,98 @@
+@media print {
+  /* Hide non-printable elements */
+  header,
+  footer,
+  .non-printable,
+  button,
+  a {
+    display: none !important;
+  }
+
+  /* Reset background colors and shadows for printing */
+  body {
+    background: white !important;
+  }
+
+  section {
+    background: white !important;
+    padding: 0 !important;
+  }
+
+  /* Ensure the receipt content is visible */
+  .print-only {
+    display: block !important;
+  }
+
+  /* Format the receipt for printing */
+  .container-custom {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 20px !important;
+  }
+
+  /* Style adjustments for cards */
+  .bg-\[\#FFF9F0\] {
+    background: white !important;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+    break-inside: avoid !important;
+  }
+
+  /* Ensure text colors are dark enough to print */
+  .text-\[\#6D6D6D\] {
+    color: #333 !important;
+  }
+
+  .text-\[\#1E1E24\] {
+    color: black !important;
+  }
+
+  .text-\[\#E67A00\] {
+    color: #333 !important;
+  }
+
+  /* Add page breaks where needed */
+  .page-break-before {
+    page-break-before: always !important;
+  }
+
+  .page-break-after {
+    page-break-after: always !important;
+  }
+
+  /* Remove gradient backgrounds */
+  .bg-gradient-to-r {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Add temple logo for printed receipt */
+  .print-header::before {
+    content: '';
+    display: block;
+    background-image: url('/images/logo.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 100px;
+    margin-bottom: 20px;
+  }
+}
+
+/* Spinner for loading state */
+.spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  border: 3px solid rgba(230, 122, 0, 0.2);
+  border-radius: 50%;
+  border-top-color: #E67A00;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
