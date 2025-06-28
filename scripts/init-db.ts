@@ -1,9 +1,20 @@
-import { query } from '@/lib/mysql';
+import mysql from 'mysql2/promise';
 
 async function initializeDatabase() {
   try {
+    // First create a connection without database selection
+    const connection = await mysql.createConnection({
+      host: process.env.MYSQL_HOST || 'localhost',
+      user: process.env.MYSQL_USER || 'root',
+      password: process.env.MYSQL_PASSWORD || 'debasis_75863'
+    });
+
+    // Create database if not exists
+    await connection.query('CREATE DATABASE IF NOT EXISTS temple_donations');
+    await connection.query('USE temple_donations');
+
     // Create the donations table
-    await query(`
+    await connection.query(`
       CREATE TABLE IF NOT EXISTS donations (
         id BIGINT PRIMARY KEY AUTO_INCREMENT,
         merchant_transaction_id VARCHAR(100) UNIQUE NOT NULL,
@@ -28,7 +39,7 @@ async function initializeDatabase() {
     `);
 
     // Create the payment_logs table
-    await query(`
+    await connection.query(`
       CREATE TABLE IF NOT EXISTS payment_logs (
         id BIGINT PRIMARY KEY AUTO_INCREMENT,
         donation_id BIGINT,
@@ -41,11 +52,11 @@ async function initializeDatabase() {
       );
     `);
 
-    console.log('Database initialized successfully!');
-    process.exit(0);
+    console.log('Database initialization completed successfully');
+    await connection.end();
   } catch (error) {
     console.error('Error initializing database:', error);
-    process.exit(1);
+    throw error;
   }
 }
 

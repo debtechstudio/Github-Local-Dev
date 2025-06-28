@@ -7,18 +7,18 @@ export default function About() {
   const features = [
     {
       icon: Calendar,
-      title: '12th Century',
-      description: 'Temple established'
+      title: 'Recently Built',
+      description: 'Modern temple'
     },
     {
       icon: Users,
-      title: 'Millions',
+      title: 'Thousands',
       description: 'Devotees annually'
     },
     {
       icon: Heart,
-      title: 'Char Dham',
-      description: 'One of four sacred sites'
+      title: 'Sacred Site',
+      description: 'Divine blessings'
     },
     {
       icon: Utensils,
@@ -49,16 +49,16 @@ export default function About() {
             </h3>
             
             <p className="text-[#6D6D6D] mb-6 leading-relaxed">
-              The Shree Jagannath Temple is an important Hindu temple dedicated to Jagannath, a form of Vishnu, 
-              in Isnapur in the state of Odisha on the eastern coast of India. The present temple was rebuilt 
-              from the 10th century onwards, on the site of an earlier temple.
+              The Sri Jagannath Temple in Isnapur is a recently established temple that brings the divine presence 
+              of Lord Jagannath to the heart of Telangana. Built with devotion and architectural excellence, 
+              it serves as a spiritual beacon for devotees in and around Hyderabad.
             </p>
             
             <p className="text-[#6D6D6D] mb-8 leading-relaxed">
-              The temple is famous for its annual Rath Yatra, or chariot festival, in which the three principal 
-              deities are pulled on huge and elaborately decorated temple cars. Unlike the stone and metal icons 
-              found in most Hindu temples, the image of Jagannath is made of wood and is ceremoniously replaced 
-              every twelve or nineteen years by an exact replica.
+              The temple follows all the sacred traditions and rituals of the ancient Jagannath Temple of Puri. 
+              The temple is famous for its annual Rath Yatra and other festivals that are celebrated with great 
+              devotion and grandeur. The wooden deities of Lord Jagannath, Lord Balabhadra, and Devi Subhadra 
+              are crafted and consecrated according to ancient scriptures.
             </p>
 
             {/* Features Grid */}

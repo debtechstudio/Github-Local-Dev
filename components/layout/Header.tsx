@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -19,184 +19,106 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
   return (
     <header 
-      className={`fixed w-full z-[1000] transition-all duration-300 ${
-        isScrolled 
-          ? 'top-0 bg-white/95 backdrop-blur-md shadow-lg' 
-          : 'top-10 bg-white'
-      } shadow-xl`}
+      className={`fixed w-full z-[1000] bg-white ${
+        isScrolled ? 'top-0' : 'top-[50px]'
+      } shadow-md`}
     >
-      <div className="container-custom">
-        <div className="flex justify-between items-center py-4">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-4">
-            <div className="relative w-16 h-16 md:w-20 md:h-20">
+      <div className="px-4">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center gap-2 flex-shrink min-w-0">
+            <div className="relative w-10 h-10 flex-shrink-0">
               <Image
-                src="images/logo.png"
+                src="/images/logo.png"
                 alt="Shri Jagannath Temple Logo"
                 fill
                 className="object-contain"
                 priority
               />
             </div>
-            <div className="hidden sm:block">
-              <h1 className="text-lg md:text-xl font-prata text-[#E67A00] mb-1">
+            <div className="flex-shrink-0">
+              <div className="text-sm font-prata text-[#E67A00] whitespace-nowrap">
                 श्री जगन्नाथ मंदिर
-              </h1>
-              <p className="text-xs md:text-sm text-[#1A5F1E] font-medium">
+              </div>
+              <div className="text-[10px] text-[#1A5F1E] font-medium whitespace-nowrap">
                 Isnapur
-              </p>
+              </div>
             </div>
-          </Link>
+          </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8">
-            <Link 
-              href="/" 
-              className="font-semibold text-[#1E1E24] hover:text-[#E67A00] transition-colors duration-300 relative group"
-            >
+          <div className="hidden lg:flex items-center gap-8">
+            <Link href="/" className="font-semibold text-[#1E1E24] hover:text-[#E67A00] transition-colors duration-300">
               Home
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#E67A00] transition-all duration-300 group-hover:w-full"></span>
             </Link>
-            
-            <div className="relative group">
-              <button className="font-semibold text-[#1E1E24] hover:text-[#E67A00] transition-colors duration-300 flex items-center gap-1">
-                About
-                <ChevronDown size={16} className="transition-transform duration-300 group-hover:rotate-180" />
-              </button>
-              <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                <div className="py-3">
-                  <Link href="/about" className="block px-4 py-2 text-sm text-[#333333] hover:bg-[#FFF9F0] hover:text-[#E67A00] transition-colors duration-300">
-                    About Temple
-                  </Link>
-                  <Link href="/deities" className="block px-4 py-2 text-sm text-[#333333] hover:bg-[#FFF9F0] hover:text-[#E67A00] transition-colors duration-300">
-                    Deities
-                  </Link>
-                  <Link href="/timings" className="block px-4 py-2 text-sm text-[#333333] hover:bg-[#FFF9F0] hover:text-[#E67A00] transition-colors duration-300">
-                    Temple Timings
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            <Link 
-              href="/darshan" 
-              className="font-semibold text-[#1E1E24] hover:text-[#E67A00] transition-colors duration-300 relative group"
-            >
+            <Link href="/about" className="font-semibold text-[#1E1E24] hover:text-[#E67A00] transition-colors duration-300">
+              About
+            </Link>
+            <Link href="/darshan" className="font-semibold text-[#1E1E24] hover:text-[#E67A00] transition-colors duration-300">
               Daily Darshan
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#E67A00] transition-all duration-300 group-hover:w-full"></span>
             </Link>
-            
-            <div className="relative group">
-              <button className="font-semibold text-[#1E1E24] hover:text-[#E67A00] transition-colors duration-300 flex items-center gap-1">
-                Services
-                <ChevronDown size={16} className="transition-transform duration-300 group-hover:rotate-180" />
-              </button>
-              <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                <div className="py-3">
-                  <Link href="/accommodation" className="block px-4 py-2 text-sm text-[#333333] hover:bg-[#FFF9F0] hover:text-[#E67A00] transition-colors duration-300">
-                    Accommodation
-                  </Link>
-                  <Link href="/annadanam" className="block px-4 py-2 text-sm text-[#333333] hover:bg-[#FFF9F0] hover:text-[#E67A00] transition-colors duration-300">
-                    Annadanam
-                  </Link>
-                  <Link href="/prasadam" className="block px-4 py-2 text-sm text-[#333333] hover:bg-[#FFF9F0] hover:text-[#E67A00] transition-colors duration-300">
-                    Prasadam
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            <Link 
-              href="/events" 
-              className="font-semibold text-[#1E1E24] hover:text-[#E67A00] transition-colors duration-300 relative group"
-            >
+            <Link href="/events" className="font-semibold text-[#1E1E24] hover:text-[#E67A00] transition-colors duration-300">
               Events
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#E67A00] transition-all duration-300 group-hover:w-full"></span>
             </Link>
-
-            <Link 
-              href="/gallery" 
-              className="font-semibold text-[#1E1E24] hover:text-[#E67A00] transition-colors duration-300 relative group"
-            >
+            <Link href="/gallery" className="font-semibold text-[#1E1E24] hover:text-[#E67A00] transition-colors duration-300">
               Gallery
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#E67A00] transition-all duration-300 group-hover:w-full"></span>
             </Link>
-
             <Button asChild className="bg-[#E67A00] hover:bg-[#D4A017] text-white">
               <Link href="/donations">Donate Now</Link>
             </Button>
-          </nav>
-
-          {/* Mobile Menu Button */}
+          </div>
+          
           <button
-            onClick={toggleMenu}
-            className="lg:hidden p-2 text-[#1E1E24] hover:text-[#E67A00] transition-colors"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="block lg:hidden"
           >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
-        {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-gray-100">
-            <nav className="flex flex-col gap-2">
-              <Link 
-                href="/" 
-                className="px-4 py-2 text-[#1E1E24] hover:bg-[#FFF9F0] hover:text-[#E67A00] rounded-lg transition-colors"
-                onClick={toggleMenu}
-              >
-                Home
-              </Link>
-              <Link 
-                href="/about" 
-                className="px-4 py-2 text-[#1E1E24] hover:bg-[#FFF9F0] hover:text-[#E67A00] rounded-lg transition-colors"
-                onClick={toggleMenu}
-              >
-                About Temple
-              </Link>
-              <Link 
-                href="/deities" 
-                className="px-4 py-2 text-[#1E1E24] hover:bg-[#FFF9F0] hover:text-[#E67A00] rounded-lg transition-colors"
-                onClick={toggleMenu}
-              >
-                Deities
-              </Link>
-              <Link 
-                href="/darshan" 
-                className="px-4 py-2 text-[#1E1E24] hover:bg-[#FFF9F0] hover:text-[#E67A00] rounded-lg transition-colors"
-                onClick={toggleMenu}
-              >
-                Daily Darshan
-              </Link>
-              <Link 
-                href="/events" 
-                className="px-4 py-2 text-[#1E1E24] hover:bg-[#FFF9F0] hover:text-[#E67A00] rounded-lg transition-colors"
-                onClick={toggleMenu}
-              >
-                Events
-              </Link>
-              <Link 
-                href="/gallery" 
-                className="px-4 py-2 text-[#1E1E24] hover:bg-[#FFF9F0] hover:text-[#E67A00] rounded-lg transition-colors"
-                onClick={toggleMenu}
-              >
-                Gallery
-              </Link>
-              <Link
-                href="/donations"
-                className="px-4 py-2 bg-[#E67A00] text-white hover:bg-[#D4A017] rounded-lg transition-colors"
-                onClick={toggleMenu}
-              >
-                Donate Now
-              </Link>
-            </nav>
-          </div>
+          <nav className="lg:hidden border-t border-gray-100 py-4 space-y-2 bg-white">
+            <Link 
+              href="/" 
+              className="block px-4 py-2 text-[#1E1E24] hover:bg-[#FFF9F0] hover:text-[#E67A00]"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Home
+            </Link>
+            <Link 
+              href="/about" 
+              className="block px-4 py-2 text-[#1E1E24] hover:bg-[#FFF9F0] hover:text-[#E67A00]"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              About
+            </Link>
+            <Link 
+              href="/darshan" 
+              className="block px-4 py-2 text-[#1E1E24] hover:bg-[#FFF9F0] hover:text-[#E67A00]"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Daily Darshan
+            </Link>
+            <Link 
+              href="/events" 
+              className="block px-4 py-2 text-[#1E1E24] hover:bg-[#FFF9F0] hover:text-[#E67A00]"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Events
+            </Link>
+            <Link 
+              href="/gallery" 
+              className="block px-4 py-2 text-[#1E1E24] hover:bg-[#FFF9F0] hover:text-[#E67A00]"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Gallery
+            </Link>
+            <div className="px-4 pt-2">
+              <Button asChild className="w-full bg-[#E67A00] hover:bg-[#D4A017] text-white">
+                <Link href="/donations">Donate Now</Link>
+              </Button>
+            </div>
+          </nav>
         )}
       </div>
     </header>

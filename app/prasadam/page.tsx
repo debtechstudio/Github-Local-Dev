@@ -1,18 +1,13 @@
 'use client';
 
-import TopBar from '@/components/layout/TopBar';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default function PrasadamPage() {
   return (
     <main className="min-h-screen">
-      <TopBar />
-      <Header />
-      <div className="pt-28 pb-16">
+      <div className="pt-20">
         <div className="container-custom">
           <h1 className="text-3xl md:text-4xl font-prata text-[#E67A00] mb-8 text-center">
             Temple Prasadam
@@ -21,7 +16,7 @@ export default function PrasadamPage() {
           <div className="grid md:grid-cols-2 gap-12 items-center mb-12">
             <div>
               <Image
-                src="/prasadam.jpg"
+                src="/images/temple-prasadam.jpg"
                 alt="Temple Prasadam"
                 width={600}
                 height={400}
@@ -122,7 +117,6 @@ export default function PrasadamPage() {
           </div>
         </div>
       </div>
-      <Footer />
     </main>
   );
 }

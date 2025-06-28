@@ -1,6 +1,6 @@
 'use client';
 
-import { Sun, Droplets, Coffee, Utensils, Moon, Bed } from 'lucide-react';
+import { Sun, Droplets, Coffee, Utensils, Moon, Bed, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -8,39 +8,39 @@ export default function DailyDarshan() {
   const darshanSchedule = [
     {
       icon: Sun,
-      title: 'Mangal Aarati',
-      description: 'Morning worship ceremony',
-      time: '5:00 AM'
+      name: "MANGALA ALATI",
+      subtitle: "Morning worship ceremony",
+      time: "5:00 AM"
     },
     {
       icon: Droplets,
-      title: 'Mailam & Abakash Puja',
-      description: 'Bathing and morning rituals',
-      time: '6:00 AM - 6:30 AM'
+      name: "MAILAM & ABAKASH",
+      subtitle: "Bathing and morning rituals",
+      time: "6:00 AM - 6:30 AM"
     },
     {
       icon: Coffee,
-      title: 'Gopal Ballabh Bhog',
-      description: 'Morning food offering',
-      time: '8:30 AM'
+      name: "GOPAL BALLABH BHOG",
+      subtitle: "Morning food offering",
+      time: "8:30 AM"
     },
     {
       icon: Utensils,
-      title: 'Madhyahna Dhupa',
-      description: 'Midday food offering',
-      time: '12:30 PM'
+      name: "MADHYAHNA DHUPA",
+      subtitle: "Midday food offering",
+      time: "12:30 PM"
     },
     {
       icon: Moon,
-      title: 'Sandhya Aarati',
-      description: 'Evening worship ceremony',
-      time: '7:00 PM'
+      name: "SANDHYA ALATI",
+      subtitle: "Evening worship ceremony",
+      time: "7:00 PM"
     },
     {
       icon: Bed,
-      title: 'Bada Shringar & Pahuda',
-      description: 'Night adornment and rest',
-      time: '9:30 PM'
+      name: "BADA SHRINGAR & PAHUDA",
+      subtitle: "Night adornment and rest",
+      time: "9:30 PM"
     }
   ];
 
@@ -59,40 +59,41 @@ export default function DailyDarshan() {
         <div className="max-w-4xl mx-auto bg-[#FFF9F0] rounded-2xl p-8 md:p-10 shadow-lg">
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-            <h3 className="text-xl md:text-2xl font-prata text-[#E67A00]">
-              Today's Rituals
-            </h3>
+            <div className="flex items-center gap-4">
+              <Clock className="w-8 h-8 text-[#E67A00]" />
+              <h3 className="text-xl md:text-2xl font-prata text-[#1E1E24]">
+                Today's Rituals
+              </h3>
+            </div>
             <Button asChild variant="outline" className="btn-outline">
               <Link href="/darshan">View Complete Schedule</Link>
             </Button>
           </div>
 
           {/* Schedule List */}
-          <div className="space-y-4">
-            {darshanSchedule.map((item, index) => (
-              <div 
-                key={index}
-                className="bg-white rounded-xl p-6 flex items-center justify-between hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-[#FFF9F0] text-[#E67A00] rounded-full flex items-center justify-center group-hover:bg-[#E67A00] group-hover:text-white transition-colors duration-300">
-                    <item.icon size={24} />
+          <div className="grid md:grid-cols-2 gap-4">
+            {darshanSchedule.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <div 
+                  key={index}
+                  className="bg-white rounded-xl shadow-md p-4 flex items-center gap-4"
+                >
+                  <div className="w-10 h-10 bg-[#FFF9F0] rounded-full flex items-center justify-center flex-shrink-0">
+                    <Icon className="w-5 h-5 text-[#E67A00]" />
                   </div>
-                  <div>
-                    <h4 className="font-semibold text-[#1E1E24] mb-1">
-                      {item.title}
-                    </h4>
-                    <p className="text-sm text-[#6D6D6D]">
-                      {item.description}
-                    </p>
+                  <div className="flex-grow">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-prata text-[#E67A00]">{item.name}</h4>
+                        <p className="text-sm text-[#6D6D6D]">{item.subtitle}</p>
+                      </div>
+                      <span className="text-sm font-medium text-[#1E1E24]">{item.time}</span>
+                    </div>
                   </div>
                 </div>
-                
-                <div className="bg-[#FFF9F0] text-[#E67A00] px-4 py-2 rounded-full font-semibold text-sm whitespace-nowrap">
-                  {item.time}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>

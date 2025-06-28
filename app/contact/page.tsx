@@ -1,8 +1,5 @@
 'use client';
 
-import TopBar from '@/components/layout/TopBar';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,9 +10,7 @@ import Image from 'next/image';
 export default function ContactPage() {
   return (
     <main className="min-h-screen">
-      <TopBar />
-      <Header />
-      <div className="pt-28 pb-16">
+      <div className="pt-20">
         <div className="container-custom">
           <h1 className="text-3xl md:text-4xl font-prata text-[#E67A00] mb-8 text-center">
             Contact Us
@@ -66,23 +61,11 @@ export default function ContactPage() {
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-[#FFF9F0] rounded-full flex items-center justify-center flex-shrink-0">
-                      <Phone className="text-[#E67A00]" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-[#1E1E24] mb-1">Phone</h3>
-                      <p className="text-[#6D6D6D]">+91 6752 222002</p>
-                      <p className="text-[#6D6D6D]">+91 6752 222003</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-[#FFF9F0] rounded-full flex items-center justify-center flex-shrink-0">
                       <Mail className="text-[#E67A00]" />
                     </div>
                     <div>
                       <h3 className="font-medium text-[#1E1E24] mb-1">Email</h3>
-                      <p className="text-[#6D6D6D]">info@jagannathtemple.com</p>
-                      <p className="text-[#6D6D6D]">support@jagannathtemple.com</p>
+                      <p className="text-[#6D6D6D]">info@isanpurjagannath.in</p>
                     </div>
                   </div>
 
@@ -95,9 +78,11 @@ export default function ContactPage() {
                       <p className="text-[#6D6D6D]">
                         Shri Jagannath Temple
                         <br />
-                        Grand Road, Puri
+                        121, Isnapur-Indira Karan Rd
                         <br />
-                        Odisha - 752001
+                        Isnapur, Hyderabad
+                        <br />
+                        Telangana - 502307
                       </p>
                     </div>
                   </div>
@@ -109,7 +94,7 @@ export default function ContactPage() {
                 <h2 className="text-2xl font-prata text-[#1E1E24] mb-6">Location</h2>
                 <div className="relative h-[300px] rounded-lg overflow-hidden">
                   <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3743.953404773016!2d85.81814731491406!3d19.8050570865584!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a19c4180256e495%3A0x496a9d8b30c1fad7!2sJagannath%20Temple%2C%20Puri!5e0!3m2!1sen!2sin!4v1625647892345!5m2!1sen!2sin"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3807.045584353358!2d78.31673571491127!3d17.40180588807039!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb9428a2a07ae7%3A0x9c2a5a8c6f5e5f5e!2sShri%20Jagannath%20Temple%20Isnapur!5e0!3m2!1sen!2sin!4v1625647892345!5m2!1sen!2sin"
                     width="100%"
                     height="300"
                     style={{ border: 0 }}
@@ -122,7 +107,6 @@ export default function ContactPage() {
           </div>
         </div>
       </div>
-      <Footer />
     </main>
   );
 }

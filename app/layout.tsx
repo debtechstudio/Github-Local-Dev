@@ -2,6 +2,8 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter, Prata } from 'next/font/google';
 import { Toaster } from '@/components/ui/sonner';
+import Navigation from '@/components/layout/Navigation';
+import Footer from '@/components/layout/Footer';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const prata = Prata({ weight: '400', subsets: ['latin'], variable: '--font-prata' });
@@ -20,7 +22,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${prata.variable} font-sans`}>
-        {children}
+        <Navigation />
+        <main className="pt-40">
+          {children}
+        </main>
+        <Footer />
         <Toaster />
       </body>
     </html>

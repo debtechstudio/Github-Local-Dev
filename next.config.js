@@ -6,11 +6,22 @@ const nextConfig = {
   images: { unoptimized: true },
   trailingSlash: false,
   skipTrailingSlashRedirect: true,
-  exportPathMap: async function (
-    defaultPathMap,
-    { dev, dir, outDir, distDir, buildId }
-  ) {
-    return defaultPathMap;
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'canvas': false,
+      'pdfkit': false,
+    };
+    // Fixes npm packages that depend on `fs` module
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      module: false,
+      path: false,
+      os: false,
+      crypto: false,
+    };
+    return config;
   },
 };
 

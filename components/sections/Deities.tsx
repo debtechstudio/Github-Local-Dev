@@ -57,10 +57,10 @@ export default function Deities() {
                 />
                 
                 {/* Overlay on Hover */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
-                  <div className="text-white">
-                    <h3 className="text-xl font-prata mb-2">{deity.name}</h3>
-                    <p className="text-sm opacity-90">{deity.title}</p>
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                  <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                    <h3 className="text-2xl font-prata text-white mb-2">{deity.name}</h3>
+                    <p className="text-lg text-white/90 font-medium">{deity.title}</p>
                   </div>
                 </div>
               </div>

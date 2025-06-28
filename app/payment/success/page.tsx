@@ -1,359 +1,247 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { CheckCircle, Download, Home, Heart, XCircle, Printer } from 'lucide-react';
-import Link from 'next/link';
-import { PDFDownloadLink } from '@react-pdf/renderer';
-import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import TopBar from '@/components/layout/TopBar';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+import { useSearchParams } from 'next/navigation';
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { CheckCircle2, Receipt, Home, Download } from "lucide-react";
+import { useEffect, useState, Suspense } from 'react';
 import { DonationReceipt } from '@/components/receipts/DonationReceipt';
-import { decryptEas } from '@/lib/encryption';
-import { GETEPAY_CONFIG } from '@/lib/getepay';
-import './styles.css';
+import { Document, Page, pdf } from '@react-pdf/renderer';
+import { ReceiptContent } from '@/components/receipts/DynamicPDFDocument';
+import { toast } from 'sonner';
 
-interface PaymentResponse {
-  getepayTxnId: string;
-  mid: string;
-  txnAmount: string;
-  txnStatus: string;
-  merchantOrderNo: string;
-  udf1: string; // Name
-  udf2: string; // Email
-  udf3: string; // Phone
-  udf4: string; // Address
-  udf5: string; // Purpose
-  paymentMode: string;
-  message: string;
-  paymentStatus: string;
-  txnDate: string;
+interface PaymentData {
+  status: string;
+  amount: string;
+  txnId: string;
+  orderId: string;
+  date: string;
+  donorName: string;
+  donorEmail: string;
+  donorPhone: string;
+  purpose: string;
   surcharge: string;
   totalAmount: string;
-  responseCode?: string;
+  paymentMode: string;
 }
 
-interface ReceiptData {
-  transactionId: string;
-  amount: string;
-  totalAmount: string;
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  purpose: string;
-  paymentMode: string;
-  date: string;
-  time: string;
-  status: string;
-  merchantTransactionId: string;
+function PaymentSuccessContent() {
+  const searchParams = useSearchParams();
+  const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  useEffect(() => {
+    if (!searchParams) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const data: PaymentData = {
+        status: searchParams.get('status') || '',
+        amount: searchParams.get('amount') || '',
+        txnId: searchParams.get('txnId') || '',
+        orderId: searchParams.get('orderId') || '',
+        date: searchParams.get('date') || '',
+        donorName: searchParams.get('donorName') || '',
+        donorEmail: searchParams.get('donorEmail') || '',
+        donorPhone: searchParams.get('donorPhone') || '',
+        purpose: searchParams.get('purpose') || '',
+        surcharge: searchParams.get('surcharge') || '',
+        totalAmount: searchParams.get('totalAmount') || '',
+        paymentMode: searchParams.get('paymentMode') || ''
+      };
+
+      const isValid = data.status && data.txnId && !isNaN(Number(data.amount));
+      setPaymentData(isValid ? data : null);
+    } catch (error) {
+      console.error('Failed to parse payment data:', error);
+      setPaymentData(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [searchParams]);
+
+  const handleDownloadReceipt = async () => {
+    if (!paymentData) return;
+    
+    try {
+      setIsDownloading(true);
+      
+      const dateObj = new Date(paymentData.date);
+      const formattedDate = dateObj.toLocaleDateString('en-IN');
+      const formattedTime = dateObj.toLocaleTimeString('en-IN');
+
+      // Create the PDF document
+      const blob = await pdf(
+        <Document>
+          <Page size={[595.28, 841.89]}>
+            <ReceiptContent
+              transactionId={paymentData.txnId}
+              amount={paymentData.amount}
+              totalAmount={paymentData.totalAmount}
+              name={paymentData.donorName}
+              email={paymentData.donorEmail}
+              phone={paymentData.donorPhone}
+              address=""
+              purpose={paymentData.purpose}
+              paymentMode={paymentData.paymentMode}
+              date={formattedDate}
+              time={formattedTime}
+              status={paymentData.status}
+              merchantTransactionId={paymentData.orderId}
+            />
+          </Page>
+        </Document>
+      ).toBlob();
+      
+      // Create a URL for the blob
+      const url = URL.createObjectURL(blob);
+      
+      // Create a temporary link element
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `receipt-${paymentData.txnId}.pdf`;
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download PDF:', error);
+      toast.error('Failed to download receipt. Please try again.');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <Card className="p-6">
+          <div className="text-center">Loading Payment Information...</div>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!paymentData) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <Card className="p-6">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-red-600">Payment Information Not Found</h1>
+            <p className="mt-4 text-gray-600">
+              Sorry, we couldn&apos;t find the payment information. Please contact support if you believe this is an error.
+            </p>
+            <div className="mt-6">
+              <Link href="/">
+                <Button variant="outline">Return Home</Button>
+              </Link>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  const dateObj = new Date(paymentData.date);
+  const formattedDate = dateObj.toLocaleDateString('en-IN');
+  const formattedTime = dateObj.toLocaleTimeString('en-IN');
+
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <Card className="p-6 space-y-6 mb-8">
+        <div className="text-center space-y-4">
+          <div className="flex justify-center">
+            <CheckCircle2 className="h-16 w-16 text-green-500" />
+          </div>
+          <h1 className="text-2xl font-bold">Payment Successful!</h1>
+          <p className="text-gray-600">
+            Thank you for your donation. Your contribution has been received successfully.
+          </p>
+        </div>
+
+        <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
+          <h2 className="font-semibold text-lg border-b pb-2">Transaction Details</h2>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="text-gray-600">Transaction ID:</div>
+            <div>{paymentData.txnId}</div>
+            <div className="text-gray-600">Order ID:</div>
+            <div>{paymentData.orderId}</div>
+            <div className="text-gray-600">Amount:</div>
+            <div>₹{paymentData.amount}</div>
+            <div className="text-gray-600">Date:</div>
+            <div>{formattedDate} {formattedTime}</div>
+            <div className="text-gray-600">Status:</div>
+            <div className="text-green-600 font-semibold">{paymentData.status}</div>
+            {paymentData.purpose && (
+              <>
+                <div className="text-gray-600">Purpose:</div>
+                <div>{paymentData.purpose}</div>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 pt-4">
+          <Button 
+            className="flex-1 gap-2" 
+            onClick={handleDownloadReceipt}
+            disabled={isDownloading}
+          >
+            <Download className="h-4 w-4" />
+            {isDownloading ? 'Downloading...' : 'Download Receipt'}
+          </Button>
+          <Link href="/" className="flex-1">
+            <Button 
+              variant="outline" 
+              className="w-full gap-2"
+            >
+              <Home className="h-4 w-4" />
+              Return Home
+            </Button>
+          </Link>
+        </div>
+      </Card>
+
+      <Card className="p-6">
+        <h2 className="text-xl font-semibold mb-4">Donation Receipt</h2>
+        <DonationReceipt
+          transactionId={paymentData.txnId}
+          amount={paymentData.amount}
+          totalAmount={paymentData.totalAmount}
+          name={paymentData.donorName}
+          email={paymentData.donorEmail}
+          phone={paymentData.donorPhone}
+          address=""
+          purpose={paymentData.purpose}
+          paymentMode={paymentData.paymentMode}
+          date={formattedDate}
+          time={formattedTime}
+          status={paymentData.status}
+          merchantTransactionId={paymentData.orderId}
+        />
+      </Card>
+    </div>
+  );
 }
 
 export default function PaymentSuccessPage() {
-  const [transactionDetails, setTransactionDetails] = useState<PaymentResponse | null>(null);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const validatePaymentSuccess = (response: PaymentResponse): boolean => {
-      const mainSuccess = response.txnStatus === 'SUCCESS' && response.paymentStatus === 'SUCCESS';
-      const validResponseCode = ['0', '00'].includes(response.responseCode || '');
-      const hasValidAmount = parseFloat(response.txnAmount) > 0;
-      return mainSuccess && validResponseCode && hasValidAmount;
-    };
-
-    const processPaymentResponse = async () => {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const encryptedResponse = params.get('response');
-        const sessionExpiry = 30 * 60 * 1000; // 30 minutes
-
-        if (!encryptedResponse) {
-          // Check for recovery data in session storage
-          const lastDonation = sessionStorage.getItem('lastDonationData');
-          if (lastDonation) {
-            const donationData = JSON.parse(lastDonation);
-            const timestamp = donationData.timestamp || 0;
-            
-            if (Date.now() - timestamp > sessionExpiry) {
-              sessionStorage.removeItem('lastDonationData');
-              throw new Error('Payment session has expired');
-            }
-            
-            if (mounted) {
-              setError(`Payment status could not be determined. Reference ID: ${donationData.merchantTransactionId}`);
-              setIsLoading(false);
-            }
-          } else {
-            throw new Error('No payment response found');
-          }
-          return;
-        }
-
-        // Decrypt the response client-side
-        try {
-          const decryptedData = decryptEas(
-            encryptedResponse,
-            GETEPAY_CONFIG.GetepayKey,
-            GETEPAY_CONFIG.GetepayIV
-          );
-          
-          const data = JSON.parse(decryptedData);
-
-          // Validate required fields
-          const requiredFields: (keyof PaymentResponse)[] = [
-            'getepayTxnId',
-            'mid',
-            'txnAmount',
-            'txnStatus',
-            'merchantOrderNo'
-          ];
-
-          for (const field of requiredFields) {
-            if (!data[field]) {
-              throw new Error(`Missing required field: ${field}`);
-            }
-          }
-
-          if (mounted) {
-            const success = validatePaymentSuccess(data);
-            setTransactionDetails(data);
-            setIsSuccess(success);
-            sessionStorage.removeItem('lastDonationData');
-
-            if (success) {
-              toast.success('Payment completed successfully!');
-            } else {
-              const errorMsg = data.message || 'Payment was not successful. Please try again.';
-              toast.error(errorMsg);
-              setError(errorMsg);
-            }
-          }
-        } catch (decryptError) {
-          console.error('Decryption error:', decryptError);
-          throw new Error('Failed to process payment response');
-        }
-
-      } catch (error) {
-        if (mounted) {
-          const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
-          console.error('Payment processing error:', error);
-          setError(errorMessage);
-          toast.error(errorMessage);
-        }
-      } finally {
-        if (mounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    processPaymentResponse();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const TransactionRow = ({ label, value, className = '' }: { label: string; value: string; className?: string }) => (
-    <div className="flex justify-between items-center py-2 border-b border-[#E67A00]/10 last:border-b-0">
-      <span className="text-[#6D6D6D]">{label}:</span>
-      <span className={`font-semibold ${className}`}>{value}</span>
-    </div>
-  );
-
-  const DetailCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <div className="bg-[#FFF9F0] rounded-2xl p-8 shadow-lg mb-8">
-      <h2 className="text-2xl font-prata text-[#E67A00] mb-6 text-center">
-        {title}
-      </h2>
-      <div className="space-y-4">
-        {children}
-      </div>
-    </div>
-  );
-
-  if (isLoading) {
-    return (
-      <main className="min-h-screen">
-        <TopBar />
-        <Header />
-        <section className="pt-32 pb-16">
-          <div className="container-custom text-center">
-            <div className="flex flex-col items-center gap-4">
-              <div className="spinner" />
-              <p>Processing your payment...</p>
-            </div>
-          </div>
-        </section>
-        <Footer />
-      </main>
-    );
-  }
-
-  if (!transactionDetails) {
-    return (
-      <main className="min-h-screen">
-        <TopBar />
-        <Header />
-        <section className="pt-32 pb-16">
-          <div className="container-custom text-center">
-            <div className="max-w-2xl mx-auto">
-              <XCircle className="w-16 h-16 text-red-600 mx-auto mb-4" />
-              <h1 className="text-3xl font-prata mb-4">Payment Information Not Found</h1>
-              <p className="text-gray-600 mb-8">
-                We could not retrieve your payment details. This could be because:
-              </p>
-              <ul className="text-left text-gray-600 mb-8 space-y-2">
-                <li>• The payment was cancelled</li>
-                <li>• There was an error in the payment process</li>
-                <li>• You accessed this page directly without making a payment</li>
-                {error && <li>• Error details: {error}</li>}
-              </ul>
-              <Button asChild variant="outline" className="btn-outline px-8 py-3">
-                <Link href="/donations">
-                  <Heart className="mr-2" size={20} />
-                  Try Making a Donation
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-        <Footer />
-      </main>
-    );
-  }
-
-  const { getepayTxnId, txnAmount, totalAmount, surcharge, paymentMode, txnDate, paymentStatus, udf1, udf2, udf3, udf4, udf5 } = transactionDetails;
-
-  const receiptData: ReceiptData = {
-    transactionId: transactionDetails.getepayTxnId,
-    amount: transactionDetails.txnAmount,
-    totalAmount: transactionDetails.totalAmount,
-    name: transactionDetails.udf1,
-    email: transactionDetails.udf2,
-    phone: transactionDetails.udf3,
-    address: transactionDetails.udf4 || '',
-    purpose: transactionDetails.udf5 || 'Temple Donation',
-    paymentMode: transactionDetails.paymentMode,
-    date: new Date(transactionDetails.txnDate).toLocaleDateString(),
-    time: new Date(transactionDetails.txnDate).toLocaleTimeString(),
-    status: transactionDetails.paymentStatus,
-    merchantTransactionId: transactionDetails.merchantOrderNo
-  };
-
   return (
-    <main className="min-h-screen">
-      <TopBar />
-      <Header />
-      
-      <section className="pt-32 pb-16 bg-gradient-to-r from-[#E67A00] to-[#D4A017] text-white">
-        <div className="container-custom">
-          <div className="flex items-center gap-4 mb-6">
-            <Button asChild variant="ghost" className="text-white hover:bg-white/20">
-              <Link href="/" className="flex items-center gap-2">
-                <Home size={20} />
-                Back to Home
-              </Link>
-            </Button>
-          </div>
-          
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-prata mb-4">
-              {isSuccess ? 'Payment Successful!' : 'Payment Failed'}
-            </h1>
-            <p className="text-xl opacity-90 max-w-2xl mx-auto">
-              {isSuccess 
-                ? 'Thank you for your generous contribution to Shri Jagannath Temple.'
-                : 'We encountered an issue with your payment.'
-              }
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="section-padding bg-white">
-        <div className="container-custom">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-8">
-              {isSuccess
-                ? <CheckCircle className="w-16 h-16 text-green-600 mx-auto" />
-                : <XCircle className="w-16 h-16 text-red-600 mx-auto" />
-              }
-            </div>
-
-            <DetailCard title="Transaction Details">
-              <TransactionRow label="Transaction ID" value={getepayTxnId} />
-              <TransactionRow label="Amount" value={`₹${txnAmount}`} className="text-[#E67A00] text-lg" />
-              {surcharge && parseFloat(surcharge) > 0 && (
-                <TransactionRow label="Surcharge" value={`₹${surcharge}`} />
-              )}
-              <TransactionRow label="Total Amount" value={`₹${totalAmount}`} className="text-[#E67A00] text-lg" />
-              <TransactionRow 
-                label="Date & Time" 
-                value={new Date(txnDate).toLocaleString()} 
-              />
-              <TransactionRow label="Payment Mode" value={paymentMode} />
-              <TransactionRow 
-                label="Status" 
-                value={paymentStatus}
-                className={isSuccess ? 'text-green-600' : 'text-red-600'} 
-              />
-            </DetailCard>
-
-            <DetailCard title="Donor Information">
-              <TransactionRow label="Name" value={udf1} />
-              <TransactionRow label="Email" value={udf2} />
-              <TransactionRow label="Phone" value={udf3} />
-              {udf4 && <TransactionRow label="Address" value={udf4} />}
-              {udf5 && <TransactionRow label="Purpose" value={udf5} />}
-            </DetailCard>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {isSuccess && (
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <PDFDownloadLink
-                    document={<DonationReceipt {...receiptData} />}
-                    fileName={`donation-receipt-${getepayTxnId}.pdf`}
-                  >
-                    {({ loading }) => (
-                      <Button className="btn-primary px-8 py-3 flex items-center justify-center" disabled={loading}>
-                        <Download className="mr-2" size={20} />
-                        {loading ? 'Preparing Receipt...' : 'Download Receipt'}
-                      </Button>
-                    )}
-                  </PDFDownloadLink>
-
-                  <Button
-                    onClick={() => window.print()}
-                    variant="outline"
-                    className="btn-outline px-8 py-3 flex items-center justify-center"
-                  >
-                    <Printer className="mr-2" size={20} />
-                    Print Receipt
-                  </Button>
-                </div>
-              )}
-              
-              <Button 
-                asChild 
-                variant="outline" 
-                className="btn-outline px-8 py-3 flex items-center justify-center"
-              >
-                <Link href="/donations">
-                  <Heart className="mr-2" size={20} />
-                  {isSuccess ? 'Donate Again' : 'Try Again'}
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-      <Footer />
-    </main>
+    <Suspense fallback={
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        <Card className="p-6">
+          <div className="text-center">Loading Payment Information...</div>
+        </Card>
+      </div>
+    }>
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }

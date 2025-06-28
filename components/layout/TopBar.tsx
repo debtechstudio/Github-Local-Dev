@@ -17,11 +17,11 @@ export default function TopBar() {
               <span>+91 6752 222002</span>
             </Link>
             <Link 
-              href="mailto:info@jagannathtemple.com" 
+              href="mailto:info@isanpurjagannath.in" 
               className="flex items-center gap-2 hover:text-[#FFF9F0] transition-all duration-300 hover:-translate-y-0.5"
             >
               <Mail size={14} />
-              <span className="hidden sm:inline">info@jagannathtemple.com</span>
+              <span className="hidden sm:inline">info@isanpurjagannath.in</span>
             </Link>
           </div>
           
