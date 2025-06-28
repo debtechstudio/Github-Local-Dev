@@ -1,25 +1,22 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Heart } from 'lucide-react';
-import { toast } from 'sonner';
-import { Button } from './button';
-import { Input } from './input';
-import { Label } from './label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
-import { Textarea } from './textarea';
-import { DonationData, initiateGetepayPayment, GETEPAY_CONFIG } from '@/lib/getepay';
-import { donationSchema } from '@/lib/validations/payment';
-import { z } from 'zod';
+import { useState } from 'react'
+import { Heart } from 'lucide-react'
+import { toast } from 'sonner'
+import { Button } from './button'
+import { Input } from './input'
+import { Label } from './label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
+import { Textarea } from './textarea'
 
 interface DonationFormProps {
-  isCompact?: boolean;
-  onSuccess?: () => void;
+  isCompact?: boolean
+  onSuccess?: () => void
 }
 
 export function DonationForm({ isCompact = false, onSuccess }: DonationFormProps) {
-  const [selectedAmount, setSelectedAmount] = useState<string>('');
-  const [customAmount, setCustomAmount] = useState<string>('');
+  const [selectedAmount, setSelectedAmount] = useState<string>('')
+  const [customAmount, setCustomAmount] = useState<string>('')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -27,67 +24,54 @@ export function DonationForm({ isCompact = false, onSuccess }: DonationFormProps
     address: '',
     purpose: '',
     message: ''
-  });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isProcessing, setIsProcessing] = useState(false);
+  })
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [isProcessing, setIsProcessing] = useState(false)
 
-  const predefinedAmounts = ['101', '501', '1001', '5000', '10000'];
-  if (!isCompact) predefinedAmounts.push('25000');
+  const predefinedAmounts = ['101', '501', '1001', '5000', '10000']
+  if (!isCompact) predefinedAmounts.push('25000')
 
   const handleAmountSelect = (amount: string) => {
-    setSelectedAmount(amount);
-    setCustomAmount('');
-    setErrors((prev) => ({ ...prev, amount: '' }));
-  };
+    setSelectedAmount(amount)
+    setCustomAmount('')
+    setErrors((prev) => ({ ...prev, amount: '' }))
+  }
 
   const handleCustomAmountChange = (value: string) => {
-    setCustomAmount(value);
-    setSelectedAmount('');
-    setErrors((prev) => ({ ...prev, amount: '' }));
-  };
+    setCustomAmount(value)
+    setSelectedAmount('')
+    setErrors((prev) => ({ ...prev, amount: '' }))
+  }
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    setErrors(prev => ({ ...prev, [field]: '' }));
-  };
+    setFormData(prev => ({ ...prev, [field]: value }))
+    setErrors(prev => ({ ...prev, [field]: '' }))
+  }
 
   const validateForm = () => {
-    const amount = selectedAmount || customAmount;
-    const validationData = {
-      ...formData,
-      amount: Number(amount)
-    };
+    const amount = selectedAmount || customAmount
+    const newErrors: Record<string, string> = {}
 
-    try {
-      donationSchema.parse(validationData);
-      return true;
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const newErrors: Record<string, string> = {};
-        error.errors.forEach((err) => {
-          if (err.path) {
-            newErrors[err.path[0]] = err.message;
-          }
-        });
-        setErrors(newErrors);
-      }
-      return false;
-    }
-  };
+    if (!formData.name.trim()) newErrors.name = 'Name is required'
+    if (!formData.email.trim()) newErrors.email = 'Email is required'
+    if (!formData.phone.trim()) newErrors.phone = 'Phone is required'
+    if (!amount) newErrors.amount = 'Amount is required'
+    if (amount && parseFloat(amount) < 1) newErrors.amount = 'Minimum amount is ₹1'
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleDonation = async () => {
-    const amount = selectedAmount || customAmount;
+    const amount = selectedAmount || customAmount
     
     try {
-      // Validate form
       if (!validateForm()) {
-        // If there are validation errors, they will be shown in the form
-        return;
+        return
       }
 
-      setIsProcessing(true);
+      setIsProcessing(true)
 
-      // Send validation data to API
       const requestData = {
         name: formData.name,
         email: formData.email,
@@ -95,51 +79,50 @@ export function DonationForm({ isCompact = false, onSuccess }: DonationFormProps
         address: formData.address,
         purpose: formData.purpose || 'General Donation',
         message: formData.message,
-        amount: amount, // API will parse this to number
-      };
+        amount: amount,
+      }
 
-      // Call payment initiation API
-      const response = await fetch('/api/payment/initiate', {
+      // Call backend payment initiation API
+      const response = await fetch('/api/server/payment/initiate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestData),
-      });
+      })
 
-      const result = await response.json();
+      const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to initiate payment');
+        throw new Error(result.error || 'Failed to initiate payment')
       }
 
       if (!result.paymentUrl) {
-        throw new Error('Payment URL not found in response');
+        throw new Error('Payment URL not found in response')
       }
 
       toast.success('Redirecting to payment gateway...', {
         duration: 2000
-      });
+      })
 
-      onSuccess?.();
+      onSuccess?.()
 
-      // Redirect to payment gateway
       setTimeout(() => {
-        window.location.href = result.paymentUrl;
-      }, 1000);
+        window.location.href = result.paymentUrl
+      }, 1000)
 
     } catch (error) {
-      console.error('Payment initialization failed:', error);
+      console.error('Payment initialization failed:', error)
       
       if (error instanceof Error) {
-        toast.error(error.message);
+        toast.error(error.message)
       } else {
-        toast.error('Payment initialization failed. Please try again later.');
+        toast.error('Payment initialization failed. Please try again later.')
       }
     } finally {
-      setIsProcessing(false);
+      setIsProcessing(false)
     }
-  };
+  }
 
   return (
     <div className="space-y-6">
@@ -333,5 +316,5 @@ export function DonationForm({ isCompact = false, onSuccess }: DonationFormProps
         )}
       </Button>
     </div>
-  );
+  )
 }
