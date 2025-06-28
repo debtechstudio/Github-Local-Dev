@@ -14,17 +14,8 @@ const nextConfig = {
   },
   trailingSlash: false,
   skipTrailingSlashRedirect: true,
-  experimental: {
-    serverComponentsExternalPackages: ['mysql2'],
-  },
-  async rewrites() {
-    return [
-      {
-        source: '/api/server/:path*',
-        destination: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/:path*`,
-      },
-    ]
-  },
+  // Fixed: Removed deprecated serverComponentsExternalPackages
+  serverExternalPackages: ['mysql2'],
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {

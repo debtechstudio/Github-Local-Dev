@@ -3,7 +3,6 @@ import { NextResponse } from "next/server"
 
 export default withAuth(
   function middleware(req) {
-    // Add any additional middleware logic here
     const response = NextResponse.next()
     
     // Add security headers
@@ -16,7 +15,7 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token, req }) => {
-        // Protect admin routes
+        // Only protect admin routes
         if (req.nextUrl.pathname.startsWith('/admin')) {
           return !!token
         }
@@ -28,7 +27,6 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    '/admin/:path*',
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/admin/:path*'
   ]
 }
