@@ -1,21 +1,5 @@
-import nodemailer from 'nodemailer'
+// Removed nodemailer dependency - using modern fetch-based email service
 import { PaymentStatus } from '@/lib/types/payment'
-
-// Email configuration with modern settings
-const emailConfig = {
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: false, // Use STARTTLS
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-  tls: {
-    ciphers: 'SSLv3'
-  }
-}
-
-const transporter = nodemailer.createTransporter(emailConfig)
 
 interface EmailData {
   name: string
@@ -39,6 +23,29 @@ const formatDate = (dateStr: string) => {
     dateStyle: 'long',
     timeStyle: 'medium'
   })
+}
+
+// Modern email service using fetch API
+async function sendEmail(to: string, subject: string, content: string) {
+  try {
+    // Using a modern email service API (replace with your preferred service)
+    const response = await fetch('/api/email/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        to,
+        subject,
+        content
+      })
+    })
+
+    return response.ok
+  } catch (error) {
+    console.error('Email sending error:', error)
+    return false
+  }
 }
 
 export async function sendDonationConfirmation(receiptData: PaymentStatus) {
@@ -72,7 +79,7 @@ export async function sendDonationConfirmation(receiptData: PaymentStatus) {
     - Status: ${status}
     - Reference Number: ${merchantTransactionId}
 
-    You can download your receipt by visiting our website and logging into your account.
+    You can download your receipt by visiting our website.
 
     May Lord Jagannath bless you and your family.
 
@@ -80,16 +87,8 @@ export async function sendDonationConfirmation(receiptData: PaymentStatus) {
     Temple Administration Team
   `
 
-  const mailOptions = {
-    from: process.env.SMTP_FROM || 'temple@example.com',
-    to: email,
-    subject: 'Thank You for Your Donation to Shri Jagannath Temple',
-    text: emailContent,
-  }
-
   try {
-    await transporter.sendMail(mailOptions)
-    return true
+    return await sendEmail(email, 'Thank You for Your Donation to Shri Jagannath Temple', emailContent)
   } catch (error) {
     console.error('Failed to send donor email:', error)
     return false
@@ -136,16 +135,9 @@ export async function sendAdminNotification(receiptData: PaymentStatus) {
     This is an automated notification. Please check the admin dashboard for more details.
   `
 
-  const mailOptions = {
-    from: process.env.SMTP_FROM || 'temple@example.com',
-    to: process.env.ADMIN_EMAIL,
-    subject: `New Donation Received - ${formattedAmount}`,
-    text: emailContent,
-  }
-
   try {
-    await transporter.sendMail(mailOptions)
-    return true
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@temple.com'
+    return await sendEmail(adminEmail, `New Donation Received - ${formattedAmount}`, emailContent)
   } catch (error) {
     console.error('Failed to send admin notification:', error)
     return false
@@ -178,16 +170,8 @@ export async function sendPaymentFailureNotification(emailData: EmailData) {
     Temple Administration Team
   `
 
-  const mailOptions = {
-    from: process.env.SMTP_FROM || 'temple@example.com',
-    to: email,
-    subject: 'Donation Payment Status - Action Required',
-    text: emailContent,
-  }
-
   try {
-    await transporter.sendMail(mailOptions)
-    return true
+    return await sendEmail(email, 'Donation Payment Status - Action Required', emailContent)
   } catch (error) {
     console.error('Failed to send failure notification:', error)
     return false
