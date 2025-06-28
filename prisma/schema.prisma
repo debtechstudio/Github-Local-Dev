@@ -1,0 +1,213 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      UserRole @default(ADMIN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+enum UserRole {
+  SUPERADMIN
+  ADMIN
+  EDITOR
+}
+
+model Page {
+  id          String      @id @default(cuid())
+  title       String
+  slug        String      @unique
+  content     String      @db.LongText
+  layoutType  LayoutType  @default(FULL)
+  showInNav   Boolean     @default(true)
+  navOrder    Int         @default(0)
+  published   Boolean     @default(true)
+  
+  // SEO Fields
+  metaTitle       String?
+  metaDescription String?
+  keywords        String?
+  ogImage         String?
+  canonicalUrl    String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("pages")
+}
+
+enum LayoutType {
+  FULL
+  BOXED
+  SIDEBAR
+}
+
+model Media {
+  id          String   @id @default(cuid())
+  filename    String
+  originalName String
+  url         String
+  mimeType    String
+  size        Int
+  altText     String?
+  tags        String?
+  uploadedAt  DateTime @default(now())
+  
+  // Usage tracking
+  events      Event[]
+  galleries   Gallery[]
+
+  @@map("media")
+}
+
+model Event {
+  id            String   @id @default(cuid())
+  title         String
+  slug          String   @unique
+  description   String   @db.Text
+  eventDate     DateTime
+  bannerImageId String?
+  bannerImage   Media?   @relation(fields: [bannerImageId], references: [id])
+  showOnHomepage Boolean @default(false)
+  published     Boolean @default(true)
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("events")
+}
+
+model Donation {
+  id                      String   @id @default(cuid())
+  merchantTransactionId   String   @unique
+  getepayTransactionId    String?
+  amount                  Decimal  @db.Decimal(10,2)
+  donorName              String
+  donorEmail             String
+  donorPhone             String
+  donorAddress           String?
+  purpose                String?
+  message                String?
+  paymentStatus          String   @default("PENDING")
+  paymentMode            String?
+  transactionDate        DateTime?
+  responseData           Json?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@map("donations")
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  isArchived Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("contact_messages")
+}
+
+model Gallery {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  imageId     String
+  image       Media    @relation(fields: [imageId], references: [id])
+  category    String?
+  tags        String?
+  isVisible   Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@map("galleries")
+}
+
+model Newsletter {
+  id          String   @id @default(cuid())
+  subject     String
+  content     String   @db.LongText
+  sentAt      DateTime?
+  recipientCount Int?
+  createdAt   DateTime @default(now())
+
+  @@map("newsletters")
+}
+
+model Subscriber {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  name        String?
+  isActive    Boolean  @default(true)
+  subscribedAt DateTime @default(now())
+
+  @@map("subscribers")
+}
+
+model SiteSettings {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String @db.Text
+  type  SettingType @default(TEXT)
+
+  @@map("site_settings")
+}
+
+enum SettingType {
+  TEXT
+  JSON
+  BOOLEAN
+  NUMBER
+  IMAGE
+}
+
+model ThemeSettings {
+  id              String @id @default(cuid())
+  primaryColor    String @default("#E67A00")
+  secondaryColor  String @default("#1A5F1E")
+  accentColor     String @default("#D4A017")
+  bodyFont        String @default("Montserrat")
+  headingFont     String @default("Prata")
+  logoUrl         String?
+  faviconUrl      String?
+  buttonRadius    String @default("8px")
+  containerWidth  String @default("1400px")
+  updatedAt       DateTime @updatedAt
+
+  @@map("theme_settings")
+}
+
+model PaymentLog {
+  id         String   @id @default(cuid())
+  donationId String
+  logType    String
+  status     String
+  message    String?
+  rawData    Json?
+  createdAt  DateTime @default(now())
+
+  @@map("payment_logs")
+}
