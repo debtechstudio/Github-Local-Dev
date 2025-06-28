@@ -3,24 +3,37 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  images: { unoptimized: true },
+  images: { 
+    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+  },
   trailingSlash: false,
   skipTrailingSlashRedirect: true,
-  webpack: (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      'canvas': false,
-      'pdfkit': false,
-    };
+  experimental: {
+    serverComponentsExternalPackages: ['mysql2'],
+  },
+  webpack: (config, { isServer }) => {
     // Fixes npm packages that depend on `fs` module
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      fs: false,
-      module: false,
-      path: false,
-      os: false,
-      crypto: false,
-    };
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+      };
+    }
+    
+    config.externals.push({
+      'utf-8-validate': 'commonjs utf-8-validate',
+      'bufferutil': 'commonjs bufferutil',
+    });
+
     return config;
   },
 };

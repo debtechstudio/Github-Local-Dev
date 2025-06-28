@@ -1,25 +1,28 @@
-import nodemailer from 'nodemailer';
-import { PaymentStatus } from '@/lib/types/payment';
+import nodemailer from 'nodemailer'
+import { PaymentStatus } from '@/lib/types/payment'
 
-// Email configuration
+// Email configuration with modern settings
 const emailConfig = {
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: false,
+  secure: false, // Use STARTTLS
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
-};
+  tls: {
+    ciphers: 'SSLv3'
+  }
+}
 
-const transporter = nodemailer.createTransport(emailConfig);
+const transporter = nodemailer.createTransporter(emailConfig)
 
 interface EmailData {
-  name: string;
-  email: string;
-  amount: string;
-  transactionId: string;
-  date: string;
+  name: string
+  email: string
+  amount: string
+  transactionId: string
+  date: string
 }
 
 // Function to format currency
@@ -27,16 +30,16 @@ const formatCurrency = (amount: string) => {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
     currency: 'INR'
-  }).format(Number(amount));
-};
+  }).format(Number(amount))
+}
 
 // Function to format date
 const formatDate = (dateStr: string) => {
   return new Date(dateStr).toLocaleString('en-IN', {
     dateStyle: 'long',
     timeStyle: 'medium'
-  });
-};
+  })
+}
 
 export async function sendDonationConfirmation(receiptData: PaymentStatus) {
   const {
@@ -49,11 +52,11 @@ export async function sendDonationConfirmation(receiptData: PaymentStatus) {
     purpose,
     status,
     orderId: merchantTransactionId,
-  } = receiptData;
+  } = receiptData
 
-  const formattedAmount = formatCurrency(amount);
-  const formattedTotal = formatCurrency(totalAmount || amount);
-  const formattedDate = formatDate(date);
+  const formattedAmount = formatCurrency(amount)
+  const formattedTotal = formatCurrency(totalAmount || amount)
+  const formattedDate = formatDate(date)
 
   const emailContent = `
     Dear ${name},
@@ -75,21 +78,21 @@ export async function sendDonationConfirmation(receiptData: PaymentStatus) {
 
     Best regards,
     Temple Administration Team
-  `;
+  `
 
   const mailOptions = {
     from: process.env.SMTP_FROM || 'temple@example.com',
     to: email,
     subject: 'Thank You for Your Donation to Shri Jagannath Temple',
     text: emailContent,
-  };
+  }
 
   try {
-    await transporter.sendMail(mailOptions);
-    return true;
+    await transporter.sendMail(mailOptions)
+    return true
   } catch (error) {
-    console.error('Failed to send donor email:', error);
-    return false;
+    console.error('Failed to send donor email:', error)
+    return false
   }
 }
 
@@ -106,11 +109,11 @@ export async function sendAdminNotification(receiptData: PaymentStatus) {
     status,
     orderId: merchantTransactionId,
     paymentMode
-  } = receiptData;
+  } = receiptData
 
-  const formattedAmount = formatCurrency(amount);
-  const formattedTotal = formatCurrency(totalAmount || amount);
-  const formattedDate = formatDate(date);
+  const formattedAmount = formatCurrency(amount)
+  const formattedTotal = formatCurrency(totalAmount || amount)
+  const formattedDate = formatDate(date)
 
   const emailContent = `
     New Donation Received
@@ -131,29 +134,29 @@ export async function sendAdminNotification(receiptData: PaymentStatus) {
     - Reference Number: ${merchantTransactionId}
 
     This is an automated notification. Please check the admin dashboard for more details.
-  `;
+  `
 
   const mailOptions = {
     from: process.env.SMTP_FROM || 'temple@example.com',
     to: process.env.ADMIN_EMAIL,
     subject: `New Donation Received - ${formattedAmount}`,
     text: emailContent,
-  };
+  }
 
   try {
-    await transporter.sendMail(mailOptions);
-    return true;
+    await transporter.sendMail(mailOptions)
+    return true
   } catch (error) {
-    console.error('Failed to send admin notification:', error);
-    return false;
+    console.error('Failed to send admin notification:', error)
+    return false
   }
 }
 
 export async function sendPaymentFailureNotification(emailData: EmailData) {
-  const { name, email, amount, transactionId, date } = emailData;
+  const { name, email, amount, transactionId, date } = emailData
 
-  const formattedAmount = formatCurrency(amount);
-  const formattedDate = formatDate(date);
+  const formattedAmount = formatCurrency(amount)
+  const formattedDate = formatDate(date)
 
   const emailContent = `
     Dear ${name},
@@ -173,20 +176,20 @@ export async function sendPaymentFailureNotification(emailData: EmailData) {
 
     Best regards,
     Temple Administration Team
-  `;
+  `
 
   const mailOptions = {
     from: process.env.SMTP_FROM || 'temple@example.com',
     to: email,
     subject: 'Donation Payment Status - Action Required',
     text: emailContent,
-  };
+  }
 
   try {
-    await transporter.sendMail(mailOptions);
-    return true;
+    await transporter.sendMail(mailOptions)
+    return true
   } catch (error) {
-    console.error('Failed to send failure notification:', error);
-    return false;
+    console.error('Failed to send failure notification:', error)
+    return false
   }
 }
