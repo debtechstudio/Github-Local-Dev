@@ -1,0 +1,127 @@
+I have a working Next.js website deployed at https://isanpurjagannath.in, and the GitHub repository I provided contains the full live source code.
+
+I want to build a CMS-style admin panel for this website using Next.js App Router, keeping all current page designs and layouts unchanged.
+
+✅ Project Requirements
+Admin Panel Features
+
+Build the admin in /app/admin using Next.js App Router
+
+Auth with NextAuth.js (email/password, optional OAuth)
+
+Role-based access control (admin only)
+
+Use Tiptap for WYSIWYG content editing
+
+Use Tailwind CSS and shadcn/ui for UI
+
+Nested layout options when creating pages:
+
+Full-width
+
+Boxed
+
+With sidebar
+
+With header/banner
+
+Manageable Content
+Admin should allow editing all content:
+
+Home Page
+
+About Temple
+
+Samayika Niti
+
+Temple Timings
+
+Daily Darshan (with image uploads)
+
+Deities (with individual pages)
+
+Events
+
+Gallery
+
+Contact
+
+Health Services
+
+Annadanam
+
+Prasadam
+
+Online Donation
+
+Newsletters
+
+Messages
+
+Users
+
+Donation System (GetePay Integration)
+
+Admin can:
+
+View and manage all donation records
+
+Securely update GetePay credentials (API key/secret)
+
+Global Site Settings (Editable via Admin)
+
+Site colors (primary, secondary)
+
+Fonts
+
+Button styles
+
+Logo
+
+Favicon
+
+Social media links
+
+Email and contact phone
+
+Content & Image Migration
+
+Migrate all existing static content and images from the current pages into a MySQL database using Prisma
+
+Ensure all content is fully editable via the admin
+
+Code Cleanup
+
+Remove all unused files/folders from the current repo
+
+Use a clean, scalable folder structure (per Next.js App Router best practices)
+
+⚙️ Tech Stack Summary
+Feature	Tool/Library
+Framework	Next.js (App Router)
+ORM & DB	Prisma + MySQL
+Auth	NextAuth.js
+WYSIWYG Editor	Tiptap
+UI Components	Tailwind CSS + shadcn/ui
+Image Upload	Next.js + UploadThing / Cloudinary / local folder
+
+🔄 Outcome
+All content and media from the live site is editable via the admin
+
+Admins can manage pages, donations, design settings, users, and more
+
+Layouts can be selected when creating new pages
+
+No frontend design changes — current site looks exactly the same
+
+Codebase is clean, scalable, and organized
+
+🛠 You can now:
+
+Build the admin panel inside the same repo
+
+Use Prisma to define models for pages, media, donations, etc.
+
+Seed the database by migrating current content/images
+
+Use dynamic layouts and content rendering in the frontend
