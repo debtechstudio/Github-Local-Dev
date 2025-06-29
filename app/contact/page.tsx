@@ -1,13 +1,61 @@
 'use client';
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Phone, Mail, MapPin } from 'lucide-react';
-import Image from 'next/image';
+import { toast } from 'sonner';
 
 export default function ContactPage() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: ''
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        toast.success('Message sent successfully! We will get back to you soon.');
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: ''
+        });
+      } else {
+        const error = await response.json();
+        toast.error(error.error || 'Failed to send message');
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error('Failed to send message. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
   return (
     <main className="min-h-screen">
       <div className="pt-20">
@@ -21,34 +69,70 @@ export default function ContactPage() {
             <div className="bg-white rounded-2xl shadow-lg p-8">
               <h2 className="text-2xl font-prata text-[#1E1E24] mb-6">Send us a Message</h2>
               
-              <form className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" placeholder="Enter your name" />
+                  <Label htmlFor="name">Full Name *</Label>
+                  <Input 
+                    id="name" 
+                    placeholder="Enter your name" 
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    required
+                  />
                 </div>
                 
                 <div>
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input id="email" type="email" placeholder="Enter your email" />
+                  <Label htmlFor="email">Email Address *</Label>
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="Enter your email" 
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    required
+                  />
                 </div>
                 
                 <div>
                   <Label htmlFor="phone">Phone Number</Label>
-                  <Input id="phone" type="tel" placeholder="Enter your phone number" />
+                  <Input 
+                    id="phone" 
+                    type="tel" 
+                    placeholder="Enter your phone number" 
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                  />
                 </div>
                 
                 <div>
-                  <Label htmlFor="subject">Subject</Label>
-                  <Input id="subject" placeholder="Enter message subject" />
+                  <Label htmlFor="subject">Subject *</Label>
+                  <Input 
+                    id="subject" 
+                    placeholder="Enter message subject" 
+                    value={formData.subject}
+                    onChange={(e) => handleInputChange('subject', e.target.value)}
+                    required
+                  />
                 </div>
                 
                 <div>
-                  <Label htmlFor="message">Message</Label>
-                  <Textarea id="message" placeholder="Type your message here" rows={4} />
+                  <Label htmlFor="message">Message *</Label>
+                  <Textarea 
+                    id="message" 
+                    placeholder="Type your message here" 
+                    rows={4} 
+                    value={formData.message}
+                    onChange={(e) => handleInputChange('message', e.target.value)}
+                    required
+                  />
                 </div>
                 
-                <Button type="submit" className="w-full">
-                  Send Message
+                <Button 
+                  type="submit" 
+                  className="w-full bg-[#E67A00] hover:bg-[#d16e00]"
+                  disabled={loading}
+                >
+                  {loading ? 'Sending...' : 'Send Message'}
                 </Button>
               </form>
             </div>
@@ -71,18 +155,26 @@ export default function ContactPage() {
 
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-[#FFF9F0] rounded-full flex items-center justify-center flex-shrink-0">
+                      <Phone className="text-[#E67A00]" />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-[#1E1E24] mb-1">Phone</h3>
+                      <p className="text-[#6D6D6D]">+91 6752 222002</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-[#FFF9F0] rounded-full flex items-center justify-center flex-shrink-0">
                       <MapPin className="text-[#E67A00]" />
                     </div>
                     <div>
                       <h3 className="font-medium text-[#1E1E24] mb-1">Address</h3>
                       <p className="text-[#6D6D6D]">
-                        Shri Jagannath Temple
+                        H.No.6-66/9, Isnapur Village
                         <br />
-                        121, Isnapur-Indira Karan Rd
+                        Patancheru (M), Sangareddy (D)
                         <br />
-                        Isnapur, Hyderabad
-                        <br />
-                        Telangana - 502307
+                        Telangana State - 502 307
                       </p>
                     </div>
                   </div>
